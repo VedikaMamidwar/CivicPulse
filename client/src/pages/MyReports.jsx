@@ -1,161 +1,155 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
     MapPin,
-    Clock,
-    CheckCircle,
-    AlertCircle,
+    CalendarDays,
+    AlertTriangle,
     ArrowRight,
+    FileText,
 } from "lucide-react";
 
-const reports = [
-    {
-        title: "Pothole near Main Road",
-        category: "Road Damage",
-        location: "Main Road",
-        date: "12 Sep 2026",
-        status: "Resolved",
-    },
-    {
-        title: "Street light not working",
-        category: "Street Lights",
-        location: "Park Avenue",
-        date: "15 Sep 2026",
-        status: "In Progress",
-    },
-    {
-        title: "Garbage collection issue",
-        category: "Cleanliness",
-        location: "Market Area",
-        date: "18 Sep 2026",
-        status: "Verified",
-    },
-];
+import { getMyReports } from "../services/myReportsService";
 
 function MyReports() {
-    return (
-        <main className="px-8 py-10">
-            <div className="max-w-6xl mx-auto">
+    const [reports, setReports] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-                {/* Header */}
+    useEffect(() => {
+        const fetchReports = async () => {
+            try {
+                const data = await getMyReports();
+                setReports(data.problems || []);
+            } catch (err) {
+                console.error(err);
+                setError(
+                    err.response?.data?.message ||
+                    "Failed to load your reports"
+                );
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchReports();
+    }, []);
+
+    return (
+        <div className="min-h-screen bg-[#F8FAFC] py-10">
+            <div className="max-w-7xl mx-auto px-6">
+
                 <div className="mb-8">
-                    <p className="text-sm font-semibold text-blue-600">
+                    <p className="text-blue-600 font-semibold text-sm uppercase tracking-wider">
                         YOUR ACTIVITY
                     </p>
 
-                    <h1 className="text-3xl font-bold text-slate-900 mt-1">
+                    <h1 className="text-3xl font-bold text-[#08264A] mt-2">
                         My Reports
                     </h1>
 
                     <p className="text-slate-500 mt-2">
-                        Track the problems you have reported in your community.
+                        Track the civic problems you have reported.
                     </p>
                 </div>
 
-                {/* Summary */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-
-                    <div className="bg-white border border-slate-200 rounded-xl p-5">
-                        <p className="text-sm text-slate-500">
-                            Total Reports
-                        </p>
-
-                        <p className="text-3xl font-bold text-slate-900 mt-2">
-                            12
+                {loading && (
+                    <div className="bg-white border border-blue-100 rounded-2xl p-10 text-center shadow-[0_8px_25px_rgba(8,38,74,0.08)]">
+                        <p className="text-slate-500">
+                            Loading your reports...
                         </p>
                     </div>
+                )}
 
-                    <div className="bg-white border border-slate-200 rounded-xl p-5">
-                        <p className="text-sm text-slate-500">
-                            In Progress
-                        </p>
-
-                        <p className="text-3xl font-bold text-orange-500 mt-2">
-                            3
-                        </p>
+                {!loading && error && (
+                    <div className="bg-white border border-red-200 rounded-2xl p-6 text-red-600">
+                        {error}
                     </div>
+                )}
 
-                    <div className="bg-white border border-slate-200 rounded-xl p-5">
-                        <p className="text-sm text-slate-500">
-                            Resolved
+                {!loading && !error && reports.length === 0 && (
+                    <div className="bg-white border border-blue-100 rounded-2xl p-12 text-center shadow-[0_8px_25px_rgba(8,38,74,0.08)]">
+                        <FileText
+                            size={42}
+                            className="mx-auto text-blue-600"
+                        />
+
+                        <h2 className="text-xl font-bold text-[#08264A] mt-4">
+                            No reports yet
+                        </h2>
+
+                        <p className="text-slate-500 mt-2">
+                            Report a local problem to start making an impact.
                         </p>
 
-                        <p className="text-3xl font-bold text-green-600 mt-2">
-                            8
-                        </p>
-                    </div>
-
-                </div>
-
-                {/* Reports */}
-                <div className="space-y-4">
-                    {reports.map((report) => (
-                        <div
-                            key={report.title}
-                            className="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md transition"
+                        <Link
+                            to="/report"
+                            className="inline-flex items-center gap-2 mt-6 bg-[#08264A] text-white px-5 py-3 rounded-xl font-semibold hover:bg-[#123E6B] transition"
                         >
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+                            Report a Problem
+                            <ArrowRight size={17} />
+                        </Link>
+                    </div>
+                )}
 
-                                <div className="flex gap-4">
+                {!loading && !error && reports.length > 0 && (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {reports.map((report) => (
+                            <div
+                                key={report._id}
+                                className="relative bg-white border border-blue-100 rounded-2xl p-6 shadow-[0_8px_25px_rgba(8,38,74,0.08)] hover:shadow-[0_12px_30px_rgba(37,99,235,0.15)] hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                            >
+                                <div className="absolute top-0 left-0 w-full h-1 bg-[#08264A]" />
 
-                                    <div className="w-11 h-11 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
-                                        <MapPin size={21} className="text-blue-600" />
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                                        <AlertTriangle size={21} />
                                     </div>
 
-                                    <div>
-                                        <h3 className="font-semibold text-slate-900">
-                                            {report.title}
-                                        </h3>
-
-                                        <p className="text-sm text-slate-500 mt-1">
-                                            {report.category}
-                                        </p>
-
-                                        <div className="flex flex-wrap gap-4 mt-3 text-xs text-slate-500">
-                                            <span className="flex items-center gap-1">
-                                                <MapPin size={13} />
-                                                {report.location}
-                                            </span>
-
-                                            <span className="flex items-center gap-1">
-                                                <Clock size={13} />
-                                                {report.date}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <div className="flex items-center gap-4">
-
-                                    <span
-                                        className={`flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-full ${report.status === "Resolved"
-                                                ? "bg-green-50 text-green-600"
-                                                : report.status === "In Progress"
-                                                    ? "bg-orange-50 text-orange-600"
-                                                    : "bg-blue-50 text-blue-600"
-                                            }`}
-                                    >
-                                        {report.status === "Resolved" ? (
-                                            <CheckCircle size={14} />
-                                        ) : (
-                                            <AlertCircle size={14} />
-                                        )}
-
+                                    <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-50 text-blue-700">
                                         {report.status}
                                     </span>
-
-                                    <button className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:border-blue-500 hover:text-blue-600">
-                                        <ArrowRight size={17} />
-                                    </button>
-
                                 </div>
 
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                                <h2 className="text-lg font-bold text-[#08264A] mt-5">
+                                    {report.title}
+                                </h2>
 
+                                <p className="text-sm text-slate-500 mt-2 line-clamp-3">
+                                    {report.description}
+                                </p>
+
+                                <div className="flex items-center gap-2 text-sm text-slate-500 mt-5">
+                                    <MapPin size={16} />
+                                    <span className="truncate">
+                                        {report.location?.address}
+                                    </span>
+                                </div>
+
+                                <div className="flex items-center gap-2 text-sm text-slate-400 mt-3">
+                                    <CalendarDays size={16} />
+                                    {new Date(
+                                        report.createdAt
+                                    ).toLocaleDateString()}
+                                </div>
+
+                                <div className="flex items-center justify-between mt-5 pt-4 border-t border-slate-100">
+                                    <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg">
+                                        {report.category}
+                                    </span>
+
+                                    <Link
+                                        to={`/problem/${report._id}`}
+                                        className="text-blue-600 hover:text-[#08264A] transition"
+                                    >
+                                        <ArrowRight size={18} />
+                                    </Link>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
-        </main>
+        </div>
     );
 }
 

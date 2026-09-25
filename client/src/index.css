@@ -1,1 +1,122 @@
 @import "tailwindcss";
+
+
+:root {
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+
+    color: #e5eefb;
+    background: #061a33;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top right,
+            rgba(37, 99, 235, 0.15),
+            transparent 30%),
+        #061a33;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+::selection {
+    background: #2563eb;
+    color: white;
+}
+
+/* CivicPulse dark cards */
+
+.cp-card {
+    background: linear-gradient(145deg,
+            #0b2d52,
+            #08264a);
+    border: 1px solid rgba(59, 130, 246, 0.22);
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.cp-card:hover {
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow:
+        0 14px 35px rgba(0, 0, 0, 0.35),
+        0 0 20px rgba(37, 99, 235, 0.08);
+    transform: translateY(-2px);
+    transition: all 0.25s ease;
+}
+
+/* Dark input fields */
+
+.cp-input {
+    width: 100%;
+    background: #071f3d;
+    color: #e5eefb;
+    border: 1px solid #1d4772;
+    border-radius: 10px;
+    padding: 12px 15px;
+    outline: none;
+}
+
+.cp-input::placeholder {
+    color: #7891ad;
+}
+
+.cp-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Blue primary button */
+
+.cp-button {
+    background: linear-gradient(135deg,
+            #2563eb,
+            #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.cp-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(37, 99, 235, 0.3);
+}
+
+.cp-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Subtle section background */
+
+.cp-section {
+    background:
+        radial-gradient(circle at 80% 20%,
+            rgba(37, 99, 235, 0.08),
+            transparent 25%),
+        #061a33;
+}

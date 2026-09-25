@@ -1,7 +1,12 @@
 import { Search, Bell, MapPin } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 function Navbar() {
+    const navigate = useNavigate();
+
+    const { user, isAuthenticated, logout } = useAuth();
+
     const navItems = [
         { name: "Home", path: "/" },
         { name: "Explore", path: "/explore" },
@@ -10,6 +15,11 @@ function Navbar() {
         { name: "My Area", path: "/my-area" },
         { name: "AI Insights", path: "/ai-insights" },
     ];
+
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    };
 
     return (
         <nav className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
@@ -42,8 +52,9 @@ function Navbar() {
                 ))}
             </div>
 
-            {/* Right side */}
+            {/* Right Side */}
             <div className="flex items-center gap-4">
+
                 <button className="text-slate-500 hover:text-blue-600">
                     <Search size={20} />
                 </button>
@@ -52,9 +63,32 @@ function Navbar() {
                     <Bell size={20} />
                 </button>
 
-                <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-semibold">
-                    V
-                </div>
+                {/* User */}
+                {isAuthenticated ? (
+                    <>
+                        <div
+                            className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-semibold"
+                            title={user?.name}
+                        >
+                            {user?.name?.charAt(0).toUpperCase() || "U"}
+                        </div>
+
+                        <button
+                            onClick={handleLogout}
+                            className="px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium transition"
+                        >
+                            Logout
+                        </button>
+                    </>
+                ) : (
+                    <NavLink
+                        to="/login"
+                        className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-medium transition"
+                    >
+                        Login
+                    </NavLink>
+                )}
+
             </div>
         </nav>
     );

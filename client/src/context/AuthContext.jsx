@@ -1,5 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { loginUser } from "../services/authService";
+import {
+    loginUser,
+    getCurrentUser,
+} from "../services/authService";
 
 const AuthContext = createContext();
 
@@ -9,26 +12,51 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedToken = localStorage.getItem("civicPulseToken");
-        const storedUser = localStorage.getItem("civicPulseUser");
+        const verifyUser = async () => {
+            const storedToken =
+                localStorage.getItem("civicPulseToken");
 
-        if (storedToken && storedUser) {
+            if (!storedToken) {
+                setLoading(false);
+                return;
+            }
+
             try {
+                const data = await getCurrentUser();
                 setToken(storedToken);
-                setUser(JSON.parse(storedUser));
+                setUser(data.user);
+
+                localStorage.setItem(
+                    "civicPulseUser",
+                    JSON.stringify(data.user)
+                );
             } catch (error) {
+                console.error(
+                    "Authentication verification failed:",
+                    error
+                );
+
                 localStorage.removeItem("civicPulseToken");
                 localStorage.removeItem("civicPulseUser");
-            }
-        }
 
-        setLoading(false);
+                setToken(null);
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        verifyUser();
     }, []);
 
     const login = async (loginData) => {
         const data = await loginUser(loginData);
 
-        localStorage.setItem("civicPulseToken", data.token);
+        localStorage.setItem(
+            "civicPulseToken",
+            data.token
+        );
+
         localStorage.setItem(
             "civicPulseUser",
             JSON.stringify(data.user)

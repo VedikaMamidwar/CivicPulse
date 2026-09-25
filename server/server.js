@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import problemRoutes from "./routes/problemRoutes.js";
 
 dotenv.config();
 
@@ -14,10 +15,13 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/problems", problemRoutes);
 
 app.get("/", (req, res) => {
     res.json({ message: "CivicPulse API is running" });
 });
+
+
 
 const PORT = process.env.PORT || 5000;
 

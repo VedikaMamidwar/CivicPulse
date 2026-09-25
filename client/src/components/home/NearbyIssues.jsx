@@ -1,98 +1,136 @@
-import { MapPin, Clock, Users } from "lucide-react";
-
-const issues = [
-    {
-        title: "Large pothole near Main Road",
-        category: "Road Damage",
-        location: "Main Road",
-        status: "Verified",
-        time: "2 hours ago",
-        supporters: 18,
-    },
-    {
-        title: "Street light not working",
-        category: "Street Lights",
-        location: "Park Avenue",
-        status: "In Progress",
-        time: "5 hours ago",
-        supporters: 11,
-    },
-    {
-        title: "Garbage collection delayed",
-        category: "Cleanliness",
-        location: "Market Area",
-        status: "Reported",
-        time: "1 day ago",
-        supporters: 24,
-    },
-];
+import {
+    MapPin,
+    AlertTriangle,
+    Droplets,
+    Lightbulb,
+    ArrowRight,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 
 function NearbyIssues() {
-    return (
-        <section className="px-8 pb-12">
-            <div className="max-w-7xl mx-auto">
+    const issues = [
+        {
+            title: "Road Pothole",
+            location: "Main Road",
+            category: "Roads",
+            priority: "High",
+            icon: AlertTriangle,
+        },
+        {
+            title: "Water Leakage",
+            location: "Market Area",
+            category: "Water",
+            priority: "Medium",
+            icon: Droplets,
+        },
+        {
+            title: "Street Light Not Working",
+            location: "Station Road",
+            category: "Streetlights",
+            priority: "High",
+            icon: Lightbulb,
+        },
+    ];
 
-                <div className="flex items-center justify-between mb-6">
+    return (
+        <section>
+            <div className="max-w-7xl mx-auto px-6">
+
+                {/* Heading */}
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
+
                     <div>
-                        <p className="text-sm font-semibold text-blue-600">
-                            NEARBY
+                        <p className="text-blue-600 font-semibold text-sm uppercase tracking-wider">
+                            COMMUNITY ACTIVITY
                         </p>
 
-                        <h2 className="text-2xl font-bold text-slate-900 mt-1">
-                            Issues Around You
+                        <h2 className="text-3xl font-bold text-[#08264A] mt-2">
+                            Nearby Issues
                         </h2>
+
+                        <p className="text-slate-500 mt-2">
+                            See problems recently reported in local
+                            communities.
+                        </p>
                     </div>
 
-                    <button className="text-sm font-semibold text-blue-600 hover:text-blue-700">
-                        View all
-                    </button>
+                    <Link
+                        to="/explore"
+                        className="inline-flex items-center gap-2 text-blue-600 font-semibold text-sm hover:text-[#08264A] transition"
+                    >
+                        View All Issues
+                        <ArrowRight size={17} />
+                    </Link>
+
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                    {issues.map((issue) => (
-                        <div
-                            key={issue.title}
-                            className="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md transition"
-                        >
-                            <div className="flex items-start justify-between gap-3">
-                                <span className="text-xs font-medium bg-blue-50 text-blue-600 px-3 py-1 rounded-full">
-                                    {issue.category}
-                                </span>
 
-                                <span
-                                    className={`text-xs font-medium px-3 py-1 rounded-full ${issue.status === "Verified"
-                                            ? "bg-green-50 text-green-600"
-                                            : issue.status === "In Progress"
-                                                ? "bg-orange-50 text-orange-600"
+                {/* Issue Cards */}
+                <div className="grid md:grid-cols-3 gap-6 mt-10">
+
+                    {issues.map((issue, index) => {
+                        const Icon = issue.icon;
+
+                        return (
+                            <div
+                                key={index}
+                                className="relative bg-white border border-blue-100 rounded-2xl p-6 shadow-[0_8px_25px_rgba(8,38,74,0.08)] hover:shadow-[0_12px_30px_rgba(37,99,235,0.15)] hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                            >
+
+                                {/* Top highlight */}
+                                <div className="absolute top-0 left-0 w-full h-1 bg-[#08264A]" />
+
+                                {/* Icon + Priority */}
+                                <div className="flex items-start justify-between">
+
+                                    <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                                        <Icon size={22} />
+                                    </div>
+
+                                    <span
+                                        className={`text-xs font-semibold px-3 py-1 rounded-full ${issue.priority === "High"
+                                                ? "bg-blue-50 text-blue-700"
                                                 : "bg-slate-100 text-slate-600"
-                                        }`}
-                                >
-                                    {issue.status}
-                                </span>
-                            </div>
+                                            }`}
+                                    >
+                                        {issue.priority}
+                                    </span>
 
-                            <h3 className="font-semibold text-slate-900 mt-4">
-                                {issue.title}
-                            </h3>
-
-                            <div className="flex items-center gap-2 text-sm text-slate-500 mt-3">
-                                <MapPin size={15} />
-                                {issue.location}
-                            </div>
-
-                            <div className="flex items-center justify-between mt-5 pt-4 border-t border-slate-100">
-                                <div className="flex items-center gap-2 text-xs text-slate-500">
-                                    <Clock size={14} />
-                                    {issue.time}
                                 </div>
 
-                                <div className="flex items-center gap-1 text-xs text-slate-500">
-                                    <Users size={14} />
-                                    {issue.supporters}
+
+                                {/* Content */}
+                                <div className="mt-6">
+
+                                    <h3 className="text-lg font-bold text-[#08264A]">
+                                        {issue.title}
+                                    </h3>
+
+                                    <div className="flex items-center gap-1.5 mt-3 text-sm text-slate-500">
+                                        <MapPin size={15} />
+                                        {issue.location}
+                                    </div>
+
                                 </div>
+
+
+                                {/* Bottom */}
+                                <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100">
+
+                                    <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg">
+                                        {issue.category}
+                                    </span>
+
+                                    <span className="text-xs text-slate-400">
+                                        Recently reported
+                                    </span>
+
+                                </div>
+
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
+
                 </div>
 
             </div>
