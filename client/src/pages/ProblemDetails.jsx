@@ -1,3 +1,5 @@
+import { getVerificationSummary } from "../services/verificationSummaryService";
+import { verifyProblem } from "../services/verificationService";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -18,6 +20,32 @@ function ProblemDetails() {
     const [problem, setProblem] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
+    const [verificationLoading, setVerificationLoading] = useState(false);
+    const [verificationMessage, setVerificationMessage] = useState("");
+
+    const handleVerification = async (vote) => {
+        try {
+            setVerificationLoading(true);
+            setVerificationMessage("");
+
+            const data = await verifyProblem(problem._id, vote);
+
+            setProblem((prev) => ({
+                ...prev,
+                verificationCount: data.verificationCount,
+            }));
+
+            setVerificationMessage(data.message);
+        } catch (err) {
+            setVerificationMessage(
+                err.response?.data?.message ||
+                "Unable to submit verification"
+            );
+        } finally {
+            setVerificationLoading(false);
+        }
+    };
 
     useEffect(() => {
         const fetchProblem = async () => {
@@ -163,100 +191,141 @@ function ProblemDetails() {
                         </div>
 
                         <div className="mt-7 border-t border-slate-100 pt-6">
-
                             <h2 className="text-lg font-bold text-[#08264A]">
-                                Location
+                                Community Verification
                             </h2>
 
-                            <div className="flex items-start gap-3 mt-3 text-slate-600">
-                                <MapPin
-                                    size={20}
-                                    className="text-blue-600 mt-0.5"
+                            <p className="text-sm text-slate-500 mt-2">
+                                Have you seen this problem in your area? Help verify the report.
+                            </p>
+
+                            <div className="flex flex-wrap gap-3 mt-5">
+                                <button
+                                    onClick={() => handleVerification("confirm")}
+                                    disabled={verificationLoading}
+                                    className="inline-flex items-center gap-2 bg-[#08264A] text-white px-5 py-3 rounded-xl font-semibold hover:bg-[#123E6B] transition disabled:opacity-50"
+                                >
+                                    <CheckCircle2 size={18} />
+                                    {verificationLoading ? "Submitting..." : "Confirm Problem"}
+                                </button>
+
+                                <button
+                                    onClick={() => handleVerification("dispute")}
+                                    disabled={verificationLoading}
+                                    className="inline-flex items-center gap-2 border border-blue-200 text-[#08264A] px-5 py-3 rounded-xl font-semibold hover:bg-blue-50 transition disabled:opacity-50"
+                                >
+                                    <AlertTriangle size={18} />
+                                    Dispute Report
+                                </button>
+                            </div>
+
+                            <div className="mt-4 text-sm text-slate-500">
+                                <strong className="text-[#08264A]">
+                                    {problem.verificationCount || 0}
+                                </strong>{" "}
+                                community confirmations
+                            </div>
+
+                            {verificationMessage && (
+                                <div className="mt-4 bg-blue-50 border border-blue-100 text-blue-700 rounded-xl px-4 py-3 text-sm font-medium">
+                                    {verificationMessage}
+                                </div>
+                            )}
+                        </div>
+
+                        <h2 className="text-lg font-bold text-[#08264A]">
+                            Location
+                        </h2>
+
+                        <div className="flex items-start gap-3 mt-3 text-slate-600">
+                            <MapPin
+                                size={20}
+                                className="text-blue-600 mt-0.5"
+                            />
+
+                            <span>
+                                {problem.location?.address}
+                            </span>
+                        </div>
+
+                        {(problem.location?.latitude !== undefined &&
+                            problem.location?.longitude !== undefined) && (
+                                <p className="text-xs text-slate-400 mt-3">
+                                    Coordinates:{" "}
+                                    {problem.location.latitude},{" "}
+                                    {problem.location.longitude}
+                                </p>
+                            )}
+                    </div>
+
+                    <div className="mt-7 border-t border-slate-100 pt-6">
+
+                        <h2 className="text-lg font-bold text-[#08264A]">
+                            Report Information
+                        </h2>
+
+                        <div className="grid sm:grid-cols-2 gap-5 mt-4">
+
+                            <div className="flex items-center gap-3">
+                                <CalendarDays
+                                    size={19}
+                                    className="text-blue-600"
                                 />
 
-                                <span>
-                                    {problem.location?.address}
-                                </span>
-                            </div>
-
-                            {(problem.location?.latitude !== undefined &&
-                                problem.location?.longitude !== undefined) && (
-                                    <p className="text-xs text-slate-400 mt-3">
-                                        Coordinates:{" "}
-                                        {problem.location.latitude},{" "}
-                                        {problem.location.longitude}
+                                <div>
+                                    <p className="text-xs text-slate-400">
+                                        Reported On
                                     </p>
-                                )}
-                        </div>
 
-                        <div className="mt-7 border-t border-slate-100 pt-6">
-
-                            <h2 className="text-lg font-bold text-[#08264A]">
-                                Report Information
-                            </h2>
-
-                            <div className="grid sm:grid-cols-2 gap-5 mt-4">
-
-                                <div className="flex items-center gap-3">
-                                    <CalendarDays
-                                        size={19}
-                                        className="text-blue-600"
-                                    />
-
-                                    <div>
-                                        <p className="text-xs text-slate-400">
-                                            Reported On
-                                        </p>
-
-                                        <p className="text-sm font-semibold text-slate-700">
-                                            {new Date(
-                                                problem.createdAt
-                                            ).toLocaleDateString()}
-                                        </p>
-                                    </div>
+                                    <p className="text-sm font-semibold text-slate-700">
+                                        {new Date(
+                                            problem.createdAt
+                                        ).toLocaleDateString()}
+                                    </p>
                                 </div>
+                            </div>
 
-                                <div className="flex items-center gap-3">
-                                    <AlertTriangle
-                                        size={19}
-                                        className="text-blue-600"
-                                    />
+                            <div className="flex items-center gap-3">
+                                <AlertTriangle
+                                    size={19}
+                                    className="text-blue-600"
+                                />
 
-                                    <div>
-                                        <p className="text-xs text-slate-400">
-                                            Community Verification
-                                        </p>
+                                <div>
+                                    <p className="text-xs text-slate-400">
+                                        Community Verification
+                                    </p>
 
-                                        <p className="text-sm font-semibold text-slate-700">
-                                            {problem.verificationCount || 0}{" "}
-                                            verifications
-                                        </p>
-                                    </div>
+                                    <p className="text-sm font-semibold text-slate-700">
+                                        {problem.verificationCount || 0}{" "}
+                                        verifications
+                                    </p>
                                 </div>
-
                             </div>
+
                         </div>
-
-                        {problem.reportedBy && (
-                            <div className="mt-7 border-t border-slate-100 pt-6">
-                                <p className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
-                                    Reported By
-                                </p>
-
-                                <p className="text-sm font-semibold text-[#08264A] mt-2">
-                                    {problem.reportedBy.name}
-                                </p>
-
-                                <p className="text-xs text-slate-400 mt-1">
-                                    {problem.reportedBy.userId}
-                                </p>
-                            </div>
-                        )}
-
                     </div>
+
+                    {problem.reportedBy && (
+                        <div className="mt-7 border-t border-slate-100 pt-6">
+                            <p className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
+                                Reported By
+                            </p>
+
+                            <p className="text-sm font-semibold text-[#08264A] mt-2">
+                                {problem.reportedBy.name}
+                            </p>
+
+                            <p className="text-xs text-slate-400 mt-1">
+                                {problem.reportedBy.userId}
+                            </p>
+                        </div>
+                    )}
+
                 </div>
             </div>
         </div>
+
     );
 }
 
